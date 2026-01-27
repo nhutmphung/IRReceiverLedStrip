@@ -2,15 +2,41 @@
 #include <FastLED.h>
 #include <IRremote.h>
 
+// TODO 1/26/2026 add array with colors from ROYGBIV, white, and black and have it cycle through as a function
+
 // Define the IR receiver pin
 const int IR_RECEIVE_PIN = 4;  
 const int NUM_LEDS = 5;
 const int LEDStrip_PIN = 6; 
 
 int currentMode = 1; 
+int colorChange = 0; 
 
 CRGB leds [NUM_LEDS];
 
+CRGB color [] = {
+  CRGB::Red,
+  CRGB::Orange, 
+  CRGB::Yellow,
+  CRGB::Green,
+  CRGB::Blue,
+  CRGB::Indigo,
+  CRGB::Violet,
+  CRGB::Black,
+  CRGB::White
+};
+
+void colorChange() { 
+  //have colorChange variable be hte led[i]
+}
+
+void lightSkip() {  //pretty sure this is in documentation for cylon or Chase/Scanners
+
+}
+
+void fairyLights() {
+    //fairy lights like christmas lights 
+}
 
 void fadeInOutPerLED() {
     static uint8_t brightness = 0;
