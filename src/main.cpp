@@ -16,8 +16,8 @@ CRGB leds [NUM_LEDS];
 
 CRGB colorArray [] = {
   CRGB::Red,
-  CRGB::Orange, 
-  CRGB::Yellow,
+  CRGB::Orange, //TODO TS NOT ORANGE GANG
+  CRGB::Yellow, //TODO TS NOT YELLOW IT LIKE PUKE YELLOW OR NEON YELLOW
   CRGB::Green,
   CRGB::Blue,
   CRGB::Indigo,
@@ -26,8 +26,8 @@ CRGB colorArray [] = {
   CRGB::White
 };
 
-const uint8_t NUM_COLORS =
-    sizeof(colorArray) / sizeof(colorArray[0]);
+const uint8_t NUM_COLORS = 9;
+    
 
 enum LedMode{
     MODE_FADE,
@@ -46,20 +46,15 @@ void colorChange() {
 
   FastLED.show();
 
-  colorArrayCounter++; 
-  if(colorArrayCounter >= NUM_COLORS) {
-    colorArrayCounter = 0;  
-  }
-
 }
 
 void lightSkip() {  //pretty sure this is in documentation for cylon or Chase/Scanners
 
 }
 
-void fairyLights() {
+void fairyLights() {    //TODO ADD dimming to fairy? 
     for(int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = CHSV(32, 120, 200);
+      leds[i] = CHSV(45, 255, 125);
     }
     FastLED.show(); 
 }
@@ -153,10 +148,16 @@ void loop() {
 
     if(IrReceiver.decodedIRData.command == 0x5E) {  //Button 3 on Remote
       currentMode = MODE_COLORCHANGE; 
-      Serial.println("MODE: Color Chnage");    
+      Serial.println("MODE: Color Chnage");
+
+      //resets colorArrayCounter back to red
+      colorArrayCounter++; 
+      if(colorArrayCounter >= NUM_COLORS) {
+        colorArrayCounter = 0;
+      }
     }
     
-    if(IrReceiver.decodedIRData.command == 0x8) {  //Button 3 on Remote
+    if(IrReceiver.decodedIRData.command == 0x8) {  //Button 4 on Remote
       currentMode = MODE_FAIRY; 
       Serial.println("MODE: Color Chnage");    
     }
@@ -166,6 +167,8 @@ void loop() {
     // Print the raw code (useful for troubleshooting)
     Serial.print("Raw Code: 0x");
     Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
+
+    Serial.println( colorArrayCounter);
     
     Serial.println("----------------------------------------");
     
