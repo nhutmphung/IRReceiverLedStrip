@@ -5,16 +5,16 @@
 // TODO 1/26/2026 add array with colors from ROYGBIV, white, and black and have it cycle through as a function
 
 // Define the IR receiver pin
-const int IR_RECEIVE_PIN = 4;  
-const int NUM_LEDS = 5;
-const int LEDStrip_PIN = 6; 
+const uint8_t IR_RECEIVE_PIN = 4;  
+const uint8_t NUM_LEDS = 5;
+const uint8_t LEDStrip_PIN = 6; 
 
-int currentMode = 1; 
-int colorChange = 0; 
+uint8_t currentMode = 1; 
+int colorArrayCounter = 0; 
 
 CRGB leds [NUM_LEDS];
 
-CRGB color [] = {
+CRGB colorArray [] = {
   CRGB::Red,
   CRGB::Orange, 
   CRGB::Yellow,
@@ -26,8 +26,31 @@ CRGB color [] = {
   CRGB::White
 };
 
+const uint8_t NUM_COLORS =
+    sizeof(colorArray) / sizeof(colorArray[0]);
+
+enum LedMode{
+    MODE_FADE,
+    MODE_COLORCHANGE,
+    MODE_CYLON,
+    MODE_RAINBOW,
+    MODE_SKIP,
+    MODE_FAIRY
+};
+
 void colorChange() { 
-  //have colorChange variable be hte led[i]
+
+  for(int i = 0; i < NUM_LEDS; i++){
+    leds[i] = colorArray[colorArrayCounter]; 
+  }
+
+  FastLED.show();
+
+  colorArrayCounter++; 
+  if(colorArrayCounter >= NUM_COLORS) {
+    colorArrayCounter = 0;  
+  }
+
 }
 
 void lightSkip() {  //pretty sure this is in documentation for cylon or Chase/Scanners
@@ -35,7 +58,10 @@ void lightSkip() {  //pretty sure this is in documentation for cylon or Chase/Sc
 }
 
 void fairyLights() {
-    //fairy lights like christmas lights 
+    for(int i = 0; i < NUM_LEDS; i++) {
+      leds[i] = CHSV(32, 120, 200);
+    }
+    FastLED.show(); 
 }
 
 void fadeInOutPerLED() {
@@ -115,22 +141,26 @@ void loop() {
     Serial.print("Hex Code: 0x");
     Serial.println(IrReceiver.decodedIRData.command, HEX);
 
-    if(IrReceiver.decodedIRData.command == 0xC){
-      currentMode = 1; 
-      Serial.println("MODE: Fade");
+    if(IrReceiver.decodedIRData.command == 0xC){  //Button 1 on Remote
+      currentMode = MODE_FADE; 
+      Serial.println("CURRENT MODE: FADE");
     }
 
-
     if(IrReceiver.decodedIRData.command == 0x18) {  //Button 2 on Remote
-      currentMode = 2;
+      currentMode = MODE_RAINBOW;
       Serial.println("MODE: Rainbow");
     }
 
     if(IrReceiver.decodedIRData.command == 0x5E) {  //Button 3 on Remote
-      FastLED.show();
-      delay(250); 
-    
+      currentMode = MODE_COLORCHANGE; 
+      Serial.println("MODE: Color Chnage");    
     }
+    
+    if(IrReceiver.decodedIRData.command == 0x8) {  //Button 3 on Remote
+      currentMode = MODE_FAIRY; 
+      Serial.println("MODE: Color Chnage");    
+    }
+
 
 
     // Print the raw code (useful for troubleshooting)
@@ -144,15 +174,23 @@ void loop() {
 
   }
 
-    switch (currentMode){
-      case 1: 
+    switch (currentMode)  
+    { 
+      case MODE_FADE: 
         fadeInOutPerLED();
         break;
-      case 2: 
+      case MODE_RAINBOW: 
         rainbowCycle();
         break;
-      case 3:
+      case MODE_CYLON:
         cylon();
         break;
+      case MODE_COLORCHANGE: 
+        colorChange();
+        break;
+      case MODE_FAIRY:
+        fairyLights(); 
+        break;
+
     }  
 }
